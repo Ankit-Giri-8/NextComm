@@ -232,8 +232,21 @@ router.post('/:id/vote', auth, [
       }
     } else {
       if (existingVote) {
-        // Update existing vote
-        if (existingVote.voteType !== voteType) {
+        // If clicking the same vote type again, remove the vote (toggle)
+        if (existingVote.voteType === voteType) {
+          // Remove the vote
+          if (voteType === 'upvote') {
+            answer.votes.upvotes -= 1;
+            pointsChange = -3; // Remove upvote points (3 points for answer upvote)
+          } else {
+            answer.votes.downvotes -= 1;
+            pointsChange = 2; // Remove downvote penalty
+          }
+          answer.votes.voters = answer.votes.voters.filter(
+            vote => vote.user.toString() !== req.userId
+          );
+        } else {
+          // Switch vote type (upvote to downvote or vice versa)
           if (existingVote.voteType === 'upvote') {
             answer.votes.upvotes -= 1;
             answer.votes.downvotes += 1;
@@ -291,8 +304,12 @@ router.post('/:id/vote', auth, [
         updatedAuthor.assignBadges();
         await updatedAuthor.save();
 
-        // Notify on upvote (only for new upvotes, not removals or downvotes)
-        if (voteType === 'upvote' && (!existingVote || existingVote.voteType !== 'upvote')) {
+        // Notify on upvote (only for new upvotes, not removals, downvotes, or toggles)
+        // Check if this is a new upvote (not a toggle or switch)
+        const isNewUpvote = voteType === 'upvote' && 
+          (!existingVote || (existingVote.voteType !== 'upvote' && existingVote.voteType === 'downvote'));
+        
+        if (isNewUpvote) {
           if (voter && question) {
             await notifyUpvote('answer', answer, voter, question._id);
           }

@@ -59,8 +59,27 @@ router.post('/register', [
       }
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('❌ Registration error:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    
+    // More specific error messages
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Validation error', errors: Object.values(error.errors) });
+    }
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+    if (!process.env.JWT_SECRET) {
+      console.error('❌ JWT_SECRET is not set!');
+      return res.status(500).json({ message: 'Server configuration error' });
+    }
+    
+    res.status(500).json({ 
+      message: 'Server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
@@ -109,8 +128,21 @@ router.post('/login', [
       }
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('❌ Login error:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    
+    // More specific error messages
+    if (!process.env.JWT_SECRET) {
+      console.error('❌ JWT_SECRET is not set!');
+      return res.status(500).json({ message: 'Server configuration error' });
+    }
+    
+    res.status(500).json({ 
+      message: 'Server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
