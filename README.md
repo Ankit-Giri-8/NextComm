@@ -288,13 +288,19 @@ MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/nextcomm?retryWr
 JWT_SECRET=your-super-secret-jwt-key-here-change-in-production
 SESSION_SECRET=your-session-secret-here
 
-# Frontend URL
+# Frontend URL (Required for CORS and OAuth redirects)
 FRONTEND_URL=http://localhost:3000
+
+# Backend URL (Required for Google OAuth callback in production)
+# Set this to your production backend URL (e.g., https://your-backend.vercel.app)
+BACKEND_URL=http://localhost:5001
 
 # Google OAuth (Optional)
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
-GOOGLE_CALLBACK_URL=/api/auth/google/callback
+# GOOGLE_CALLBACK_URL is optional - will be auto-constructed from BACKEND_URL if not set
+# If set, use full URL: https://your-backend.vercel.app/api/auth/google/callback
+GOOGLE_CALLBACK_URL=
 
 # Google Gemini API (Optional)
 GEMINI_API_KEY=your-gemini-api-key

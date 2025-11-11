@@ -23,11 +23,36 @@ passport.deserializeUser(async (id, done) => {
 const googleClientId = process.env.GOOGLE_CLIENT_ID?.trim();
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
 
+// Construct absolute callback URL for Google OAuth
+// Priority: GOOGLE_CALLBACK_URL > BACKEND_URL + /api/auth/google/callback > relative path
+const getGoogleCallbackUrl = () => {
+  // If explicitly set, use it
+  if (process.env.GOOGLE_CALLBACK_URL?.trim()) {
+    return process.env.GOOGLE_CALLBACK_URL.trim();
+  }
+  
+  // If BACKEND_URL is set, construct absolute URL
+  if (process.env.BACKEND_URL?.trim()) {
+    const backendUrl = process.env.BACKEND_URL.trim().replace(/\/$/, ''); // Remove trailing slash
+    return `${backendUrl}/api/auth/google/callback`;
+  }
+  
+  // Fallback to relative URL (for development)
+  if (process.env.NODE_ENV === 'production') {
+    console.warn('⚠️  WARNING: BACKEND_URL or GOOGLE_CALLBACK_URL not set in production. Google OAuth may not work correctly.');
+  }
+  
+  return '/api/auth/google/callback';
+};
+
 if (googleClientId && googleClientSecret) {
+  const callbackURL = getGoogleCallbackUrl();
+  console.log('🔐 Google OAuth callback URL:', callbackURL);
+  
   passport.use(new GoogleStrategy({
     clientID: googleClientId,
     clientSecret: googleClientSecret,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL?.trim() || '/api/auth/google/callback'
+    callbackURL: callbackURL
   }, async (accessToken, refreshToken, profile, done) => {
   try {
     console.log('Google OAuth strategy - Profile received:', {
