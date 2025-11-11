@@ -1,0 +1,1059 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* App theme helpers */
+:root {
+  --color-primary: #1193d4;
+}
+
+.bg-primary {
+  background-color: var(--color-primary);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.bg-background-light {
+  background-color: #f8fafc;
+}
+
+.bg-background-dark {
+  background-color: #0b1220;
+}
+
+/* Simple spinner used in Leaderboard loading */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  border: 4px solid rgba(17, 147, 212, 0.2);
+  border-top-color: var(--color-primary);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Badge Modal Animations */
+@keyframes badge-pop {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1) rotate(10deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes sparkle-1 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(10px, -15px) scale(1.5);
+    opacity: 1;
+  }
+}
+
+@keyframes sparkle-2 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-12px, -10px) scale(1.3);
+    opacity: 1;
+  }
+}
+
+@keyframes sparkle-3 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(15px, 12px) scale(1.4);
+    opacity: 1;
+  }
+}
+
+@keyframes sparkle-4 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-10px, 15px) scale(1.2);
+    opacity: 1;
+  }
+}
+
+@keyframes sparkle-5 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-20px, 5px) scale(1.6);
+    opacity: 1;
+  }
+}
+
+@keyframes sparkle-6 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(18px, -8px) scale(1.3);
+    opacity: 1;
+  }
+}
+
+.animate-badge-pop {
+  animation: badge-pop 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.animate-sparkle-1 {
+  animation: sparkle-1 2s ease-in-out infinite;
+  animation-delay: 0s;
+}
+
+.animate-sparkle-2 {
+  animation: sparkle-2 2s ease-in-out infinite;
+  animation-delay: 0.3s;
+}
+
+.animate-sparkle-3 {
+  animation: sparkle-3 2s ease-in-out infinite;
+  animation-delay: 0.6s;
+}
+
+.animate-sparkle-4 {
+  animation: sparkle-4 2s ease-in-out infinite;
+  animation-delay: 0.9s;
+}
+
+.animate-sparkle-5 {
+  animation: sparkle-5 2s ease-in-out infinite;
+  animation-delay: 1.2s;
+}
+
+.animate-sparkle-6 {
+  animation: sparkle-6 2s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+
+/* Gradient radial for spotlight effect */
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+/* Expandable Search Animation */
+@keyframes search-expand {
+  0% {
+    width: 40px;
+    opacity: 0;
+  }
+  100% {
+    width: 300px;
+    opacity: 1;
+  }
+}
+
+/* Slide down animation for duplicate alert */
+@keyframes slide-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s ease-out forwards;
+}
+
+.animate-search-expand {
+  animation: search-expand 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  min-width: 300px;
+}
+
+@media (min-width: 640px) {
+  .animate-search-expand {
+    min-width: 350px;
+  }
+}
+
+@media (min-width: 768px) {
+  .animate-search-expand {
+    min-width: 400px;
+  }
+}
+
+/* Dark mode prose (rich text editor content) improvements */
+.dark .prose {
+  color: #e5e7eb;
+}
+
+.dark .prose h1,
+.dark .prose h2,
+.dark .prose h3,
+.dark .prose h4,
+.dark .prose h5,
+.dark .prose h6 {
+  color: #f9fafb;
+}
+
+.dark .prose p,
+.dark .prose li,
+.dark .prose td,
+.dark .prose th {
+  color: #d1d5db;
+}
+
+.dark .prose strong {
+  color: #f3f4f6;
+}
+
+.dark .prose a {
+  color: #60a5fa;
+}
+
+.dark .prose code {
+  color: #fbbf24;
+  background-color: #374151;
+}
+
+.dark .prose pre {
+  background-color: #1f2937;
+  color: #e5e7eb;
+}
+
+/* Code block overflow and layout fixes for prose */
+.prose pre,
+.prose pre code,
+.dark .prose pre,
+.dark .prose pre code {
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  overflow-y: hidden;
+  word-wrap: normal;
+  white-space: pre;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+
+.prose pre {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  margin: 1rem 0;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.dark .prose pre {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  white-space: pre;
+  word-wrap: normal;
+  box-sizing: border-box;
+}
+
+/* Ensure code blocks don't break container layout */
+.prose {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.prose pre,
+.prose code {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ReactQuill dark mode styling */
+.dark .ql-snow .ql-stroke {
+  stroke: #9ca3af;
+}
+
+.dark .ql-snow .ql-fill {
+  fill: #9ca3af;
+}
+
+.dark .ql-snow .ql-picker-label {
+  color: #9ca3af;
+}
+
+.dark .ql-toolbar.ql-snow {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+.dark .ql-container.ql-snow {
+  background-color: #111827;
+  border-color: #374151;
+  color: #e5e7eb;
+}
+
+.dark .ql-editor.ql-blank::before {
+  color: #6b7280;
+}
+
+.dark .ql-editor {
+  color: #e5e7eb;
+}
+
+/* Fix ReactQuill editor interaction */
+.ql-container {
+  font-size: 14px;
+  min-height: 200px;
+}
+
+.ql-editor {
+  min-height: 200px;
+  padding: 12px 15px;
+  overflow-y: auto;
+  cursor: text !important;
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+.ql-editor:focus {
+  outline: none;
+}
+
+/* Ensure ReactQuill editor is clickable */
+.ql-container,
+.ql-editor,
+.ql-toolbar,
+.ql-toolbar * {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 1;
+}
+
+/* Fix toolbar buttons */
+.ql-toolbar button {
+  cursor: pointer !important;
+}
+
+.ql-toolbar button:hover {
+  background-color: #e5e7eb;
+}
+
+.dark .ql-toolbar button:hover {
+  background-color: #374151;
+}
+
+/* Ensure the editor is editable */
+.ql-editor[contenteditable="true"] {
+  cursor: text !important;
+}
+
+/* Light mode ReactQuill */
+.ql-toolbar.ql-snow {
+  background-color: #f9fafb;
+  border-color: #e5e7eb;
+  border-bottom: none;
+}
+
+.ql-container.ql-snow {
+  background-color: white;
+  border-color: #e5e7eb;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Quill wrapper styling */
+.quill-wrapper {
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.quill-wrapper .ql-toolbar {
+  border: none;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.quill-wrapper .ql-container {
+  border: none;
+}
+
+.dark .quill-wrapper {
+  border-color: #4b5563;
+}
+
+.dark .quill-wrapper .ql-toolbar {
+  border-bottom-color: #4b5563;
+}
+
+/* Syntax Highlighting Styles */
+.ql-syntax {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  overflow-x: auto;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.dark .ql-syntax {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+}
+
+/* Code block styling */
+.ql-editor pre.ql-syntax {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  margin: 1rem 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dark .ql-editor pre.ql-syntax {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.ql-editor code {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.875em;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.dark .ql-editor code {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.ql-editor pre {
+  margin: 1rem 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  position: relative;
+}
+
+.ql-editor pre code {
+  background-color: transparent;
+  padding: 0;
+  display: block;
+  white-space: pre;
+  word-wrap: normal;
+  overflow-x: auto;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* Force Quill editor to respect container width */
+.ql-container,
+.ql-editor {
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ql-editor {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.ql-editor pre {
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  box-sizing: border-box;
+}
+
+/* Highlight.js styles */
+.hljs {
+  display: block;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 1rem;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  border-radius: 0.375rem;
+  max-width: 100%;
+  box-sizing: border-box;
+  white-space: pre;
+  word-wrap: normal;
+}
+
+.dark .hljs {
+  background: #1e1e1e;
+  color: #d4d4d4;
+}
+
+/* Ensure code blocks in rendered content are properly contained */
+.prose pre code.hljs,
+.prose pre code {
+  max-width: 100%;
+  overflow-x: auto;
+  display: block;
+  white-space: pre;
+  word-wrap: normal;
+}
+
+/* Container fixes to prevent code blocks from breaking layout */
+.prose {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.prose * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.prose pre {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Force code blocks to respect container boundaries */
+.prose p,
+.prose div,
+.prose section {
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.prose pre,
+.prose code {
+  contain: layout style;
+}
+
+/* Additional container constraints */
+.prose > * {
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.prose > pre {
+  overflow-x: auto;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* Ensure all nested elements respect boundaries */
+.prose pre code,
+.prose pre code * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Fix for code blocks that might have inline styles overriding */
+.prose pre[style],
+.prose code[style] {
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Smooth scrolling for code blocks */
+.prose pre,
+.ql-editor pre,
+.hljs {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(155, 155, 155, 0.5) transparent;
+}
+
+.prose pre::-webkit-scrollbar,
+.ql-editor pre::-webkit-scrollbar,
+.hljs::-webkit-scrollbar {
+  height: 8px;
+}
+
+.prose pre::-webkit-scrollbar-track,
+.ql-editor pre::-webkit-scrollbar-track,
+.hljs::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.prose pre::-webkit-scrollbar-thumb,
+.ql-editor pre::-webkit-scrollbar-thumb,
+.hljs::-webkit-scrollbar-thumb {
+  background: rgba(155, 155, 155, 0.5);
+  border-radius: 4px;
+}
+
+.prose pre::-webkit-scrollbar-thumb:hover,
+.ql-editor pre::-webkit-scrollbar-thumb:hover,
+.hljs::-webkit-scrollbar-thumb:hover {
+  background: rgba(155, 155, 155, 0.7);
+}
+
+/* LaTeX Formula Styles */
+.ql-editor .latex-formula {
+  display: inline-block;
+  margin: 0 0.125rem;
+  padding: 0.125rem 0.25rem;
+  background-color: rgba(59, 130, 246, 0.1);
+  border-radius: 0.25rem;
+}
+
+.dark .ql-editor .latex-formula {
+  background-color: rgba(59, 130, 246, 0.2);
+}
+
+.ql-editor .latex-block {
+  display: block;
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: rgba(59, 130, 246, 0.05);
+  border-radius: 0.5rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+.dark .ql-editor .latex-block {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* KaTeX rendering styles */
+.katex {
+  font-size: 1.1em;
+}
+
+.katex-display {
+  margin: 1rem 0;
+}
+
+/* Custom toolbar button icons */
+.ql-formula::before {
+  content: "Σ";
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.ql-code::before {
+  content: "</>";
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+/* ============================================
+   Modern Dropdown/Select Styling
+   Clean, minimalist design matching site theme
+   ============================================ */
+
+/* Base Select Styling - Closed State */
+select {
+  /* Remove default browser styling */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  
+  /* Base styling matching search bar */
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem; /* 8px - matching rounded corners */
+  padding: 0.625rem 2.5rem 0.625rem 0.75rem; /* 10px top/bottom, 40px right for icon, 12px left */
+  font-family: inherit;
+  font-size: 0.875rem; /* 14px */
+  font-weight: 400;
+  color: #1f2937;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  min-height: 2.5rem;
+  width: 100%;
+  
+  /* Custom chevron icon - clean and modern */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25rem 1.25rem;
+}
+
+/* Hover State - Light Mode */
+select:hover {
+  border-color: #1193d4; /* Primary blue */
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Focus State - Light Mode */
+select:focus {
+  outline: none;
+  border-color: #1193d4;
+  box-shadow: 0 0 0 3px rgba(17, 147, 212, 0.1);
+  background-color: #ffffff;
+}
+
+/* Active/Open State */
+select:active,
+select:focus:active {
+  border-color: #1193d4;
+  box-shadow: 0 0 0 3px rgba(17, 147, 212, 0.1);
+}
+
+/* Dark Mode - Base Select */
+.dark select {
+  background-color: #1f2937;
+  border-color: #4b5563;
+  color: #f3f4f6;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+}
+
+.dark select:hover {
+  border-color: #60a5fa;
+  background-color: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.dark select:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+  background-color: #1f2937;
+}
+
+/* ============================================
+   Dropdown Panel Styling (Options List)
+   ============================================ */
+
+/* Dropdown Options - Light Mode */
+select option {
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+  padding: 0.75rem 1rem !important; /* 12px vertical, 16px horizontal */
+  font-size: 0.875rem !important;
+  font-weight: 400 !important;
+  border: none !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  transition: background-color 0.15s ease-in-out !important;
+}
+
+/* Hover State for Options - Light Mode */
+select option:hover {
+  background-color: #eff6ff !important; /* Light blue - bg-blue-50 */
+  color: #1e40af !important;
+  font-weight: 500 !important;
+}
+
+/* Focus State for Options - Light Mode */
+select option:focus {
+  background-color: #dbeafe !important; /* Slightly darker blue */
+  color: #1e40af !important;
+  font-weight: 500 !important;
+  outline: none !important;
+}
+
+/* Selected/Checked State - Light Mode */
+select option:checked,
+select option[selected] {
+  background-color: #dbeafe !important; /* Light blue */
+  color: #1e40af !important;
+  font-weight: 600 !important;
+}
+
+/* Dark Mode Options */
+.dark select option {
+  background-color: #1f2937 !important;
+  color: #f3f4f6 !important;
+}
+
+.dark select option:hover {
+  background-color: #1e3a8a !important; /* Dark blue */
+  color: #93c5fd !important;
+  font-weight: 500 !important;
+}
+
+.dark select option:focus {
+  background-color: #1e40af !important;
+  color: #93c5fd !important;
+  font-weight: 500 !important;
+}
+
+.dark select option:checked,
+.dark select option[selected] {
+  background-color: #1e40af !important;
+  color: #93c5fd !important;
+  font-weight: 600 !important;
+}
+
+/* ============================================
+   Browser-Specific Fixes
+   ============================================ */
+
+/* Firefox specific fixes */
+@-moz-document url-prefix() {
+  select {
+    text-indent: 0.01px;
+    text-overflow: '';
+  }
+  
+  select option {
+    padding-left: 0.75rem !important;
+  }
+}
+
+/* Safari/WebKit specific fixes */
+select::-webkit-select-placeholder {
+  color: #9ca3af;
+}
+
+/* Internet Explorer (if needed) */
+select::-ms-expand {
+  display: none;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 640px) {
+  select {
+    font-size: 0.875rem;
+    padding: 0.625rem 2.25rem 0.625rem 0.625rem;
+    min-height: 2.5rem;
+  }
+  
+  select option {
+    padding: 0.625rem 0.875rem !important;
+    font-size: 0.875rem !important;
+  }
+}
+
+/* ============================================
+   Accessibility Enhancements
+   ============================================ */
+
+/* Ensure keyboard navigation is visible */
+select:focus-visible {
+  outline: 2px solid #1193d4;
+  outline-offset: 2px;
+}
+
+/* Disabled state */
+select:disabled {
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+  border-color: #e5e7eb;
+  opacity: 0.6;
+}
+
+.dark select:disabled {
+  background-color: #374151;
+  color: #6b7280;
+  border-color: #4b5563;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Footer link hover animation */
+footer a {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Pulse animation for heart */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Hero Image Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes zoomIn {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 1s ease-out;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+/* KaTeX formula styling */
+.katex {
+  font-size: 1.1em;
+}
+
+.katex-display {
+  margin: 1em 0;
+  text-align: center;
+}
+
+/* Ensure formulas are visible in dark mode */
+.dark .katex {
+  color: #e5e7eb;
+}
+
+.dark .katex .mord {
+  color: #e5e7eb;
+}
+
+/* Formula error styling */
+.latex-error {
+  font-family: monospace;
+  color: #ef4444;
+  background-color: #fee2e2;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.dark .latex-error {
+  color: #fca5a5;
+  background-color: #7f1d1d;
+}
+
+/* Custom Toast Styling - Centered */
+div[role="status"] {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 9999 !important;
+}
+
+/* Toast Container - react-hot-toast */
+div[data-hot-toast] {
+  border-radius: 16px !important;
+  padding: 18px 24px !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  min-width: 320px !important;
+  max-width: 500px !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+/* Dark mode toast support */
+.dark div[data-hot-toast] {
+  background: rgba(31, 41, 55, 0.95) !important;
+  color: #e5e7eb !important;
+  border: 1px solid rgba(75, 85, 99, 0.5) !important;
+}
+
+.dark div[data-hot-toast][data-type="success"] {
+  background: rgba(6, 78, 59, 0.95) !important;
+  color: #86efac !important;
+  border: 2px solid #10b981 !important;
+}
+
+.dark div[data-hot-toast][data-type="error"] {
+  background: rgba(127, 29, 29, 0.95) !important;
+  color: #fca5a5 !important;
+  border: 2px solid #ef4444 !important;
+}
+
+
