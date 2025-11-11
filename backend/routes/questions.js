@@ -3,6 +3,7 @@ const { body, validationResult, query } = require('express-validator');
 const Question = require('../models/Question');
 const Answer = require('../models/Answer');
 const User = require('../models/User');
+const Bookmark = require('../models/Bookmark');
 const auth = require('../middleware/auth');
 const { processMentions, notifyUpvote, notifyBadgeEarned } = require('../utils/notifications');
 
@@ -259,6 +260,9 @@ router.delete('/:id', auth, async (req, res) => {
     // Delete associated answers
     await Answer.deleteMany({ question: question._id });
 
+    // Delete associated bookmarks
+    await Bookmark.deleteMany({ question: question._id });
+
     // Update user's questions count and deduct points
     await User.findByIdAndUpdate(req.userId, { 
       $inc: { 
@@ -272,8 +276,14 @@ router.delete('/:id', auth, async (req, res) => {
 
     res.json({ message: 'Question deleted successfully' });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('❌ Error deleting question:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    res.status(500).json({ 
+      message: 'Failed to delete question',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
@@ -411,10 +421,19 @@ router.post('/:id/vote', auth, [
       }
     }
 
-    res.json({ upvotes: question.votes.upvotes, downvotes: question.votes.downvotes });
+    // Return updated vote counts and voters array
+    res.json({ 
+      upvotes: question.votes.upvotes, 
+      downvotes: question.votes.downvotes,
+      voters: question.votes.voters 
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('❌ Error voting on question:', error);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      message: 'Failed to vote',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 

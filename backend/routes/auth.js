@@ -103,6 +103,11 @@ router.post('/login', [
     }
 
     // Check password
+    // If user is OAuth-only (no password), they can't login with email/password
+    if (!user.password || user.authProvider === 'google') {
+      return res.status(400).json({ message: 'This account uses Google Sign-In. Please use Google to sign in.' });
+    }
+    
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });

@@ -329,10 +329,19 @@ router.post('/:id/vote', auth, [
       }
     }
 
-    res.json({ upvotes: answer.votes.upvotes, downvotes: answer.votes.downvotes });
+    // Return updated vote counts and voters array
+    res.json({ 
+      upvotes: answer.votes.upvotes, 
+      downvotes: answer.votes.downvotes,
+      voters: answer.votes.voters 
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('❌ Error voting on answer:', error);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      message: 'Failed to vote',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 

@@ -284,40 +284,31 @@ const QuestionDetails = () => {
       // Determine if we should remove the vote (user clicked same button again)
       let currentVote = null;
       if (targetType === 'questions') {
-        currentVote = question.votes?.voters?.find(v => v.user === user?.id);
+        // Compare user IDs properly (handle both string and ObjectId)
+        currentVote = question.votes?.voters?.find(v => {
+          const voteUserId = v.user?._id || v.user;
+          const currentUserId = user?.id || user?._id;
+          return String(voteUserId) === String(currentUserId);
+        });
       } else {
         const answer = question.answers.find(a => a._id === targetId);
-        currentVote = answer?.votes?.voters?.find(v => v.user === user?.id);
+        currentVote = answer?.votes?.voters?.find(v => {
+          const voteUserId = v.user?._id || v.user;
+          const currentUserId = user?.id || user?._id;
+          return String(voteUserId) === String(currentUserId);
+        });
       }
 
-      // If clicking the same vote type, remove the vote
+      // If clicking the same vote type, send 'remove', otherwise send the vote type
+      // The backend will handle toggling when same vote type is clicked
       const voteType = (currentVote && currentVote.voteType === type) ? 'remove' : type;
       
       const response = await axios.post(`/api/${targetType}/${targetId}/vote`, {
         voteType: voteType
       });
 
-      // Update the question or answer with new vote counts
-      if (targetType === 'questions') {
-        setQuestion(prev => ({
-          ...prev,
-          votes: {
-            ...prev.votes,
-            upvotes: response.data.upvotes,
-            downvotes: response.data.downvotes,
-            voters: prev.votes?.voters || []
-          }
-        }));
-      } else {
-        setQuestion(prev => ({
-          ...prev,
-          answers: prev.answers.map(answer => 
-            answer._id === targetId 
-              ? { ...answer, votes: response.data }
-              : answer
-          )
-        }));
-      }
+      // Refetch the question to get updated vote data
+      await fetchQuestion();
 
       if (voteType === 'remove') {
         toast.success('Vote removed');
