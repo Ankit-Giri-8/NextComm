@@ -898,24 +898,24 @@ const QuestionDetails = () => {
                     </div>
                   )}
                   
-                  <div className="flex items-start gap-4">
-                    <Link to={`/profile/${answer.author?._id}`}>
+                  <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                    <Link to={`/profile/${answer.author?._id}`} className="flex-shrink-0">
                       <img
                         src={answer.author?.avatar || `https://ui-avatars.com/api/?name=${answer.author?.username}&background=1193d4&color=fff`}
                         alt={answer.author?.username}
-                        className="w-10 h-10 rounded-full ring-2 ring-gray-200 dark:ring-gray-700 hover:ring-primary transition-all cursor-pointer"
+                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full ring-2 ring-gray-200 dark:ring-gray-700 hover:ring-primary transition-all cursor-pointer"
                       />
                     </Link>
                     
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
+                    <div className="flex-1 min-w-0 w-full">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
                         <Link
                           to={`/profile/${answer.author?._id}`}
-                          className="font-bold text-gray-900 dark:text-white hover:text-primary hover:underline transition-colors"
+                          className="font-bold text-sm sm:text-base text-gray-900 dark:text-white hover:text-primary hover:underline transition-colors"
                         >
                           {answer.author?.username}
                         </Link>
-                        <span className="text-sm text-gray-500 dark:text-gray-300">
+                        <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-300">
                           {formatDate(answer.createdAt)}
                         </span>
                         {answer.isEdited && (
@@ -938,18 +938,18 @@ const QuestionDetails = () => {
                             style={{ minHeight: '200px' }}
                             preserveWhitespace={true}
                           />
-                          <div className="flex items-center justify-end gap-3 mt-4">
+                          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 mt-4">
                             <button
                               onClick={handleCancelEdit}
                               disabled={savingAnswer}
-                              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
+                              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 w-full sm:w-auto"
                             >
                               Cancel
                             </button>
                             <button
                               onClick={handleSaveEditAnswer}
                               disabled={savingAnswer || (!editAnswerContent || (editAnswerContent.replace(/<[^>]*>/g, '').trim().length === 0 && !editAnswerContent.includes('<img')))}
-                              className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
                             >
                               {savingAnswer ? 'Saving...' : 'Save Changes'}
                             </button>
@@ -963,8 +963,8 @@ const QuestionDetails = () => {
                           </div>
                           
                           {/* Voting and action buttons - only show in display mode */}
-                          <div className="flex items-center justify-between mt-4">
-                        <div className="flex items-center gap-4">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4 gap-3">
+                        <div className="flex items-center gap-2 sm:gap-4">
                           {(() => {
                             // Find user's vote - handle both ObjectId and populated user object
                             const userVote = answer.votes?.voters?.find(v => {
@@ -980,7 +980,7 @@ const QuestionDetails = () => {
                                 <button
                                   onClick={() => handleVote('upvote', answer._id, 'answers')}
                                   disabled={voting[answer._id]}
-                                  className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-all ${
+                                  className={`flex items-center gap-1 px-2 sm:px-3 py-2 rounded-lg transition-all text-sm ${
                                     hasUpvoted 
                                       ? 'bg-green-500 text-white shadow-md' 
                                       : 'hover:bg-green-50 dark:hover:bg-green-900/20 text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400'
@@ -993,7 +993,7 @@ const QuestionDetails = () => {
                                 <button
                                   onClick={() => handleVote('downvote', answer._id, 'answers')}
                                   disabled={voting[answer._id]}
-                                  className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-all ${
+                                  className={`flex items-center gap-1 px-2 sm:px-3 py-2 rounded-lg transition-all text-sm ${
                                     hasDownvoted 
                                       ? 'bg-red-500 text-white shadow-md' 
                                       : 'hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400'
@@ -1007,7 +1007,7 @@ const QuestionDetails = () => {
                           })()}
                         </div>
                         
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                           {/* Bookmark Button */}
                           {isAuthenticated && (
                             <BookmarkButton answerId={answer._id} size="sm" />
@@ -1021,18 +1021,20 @@ const QuestionDetails = () => {
                            !answer.isAccepted && (
                             <button
                               onClick={() => handleAcceptAnswer(answer._id)}
-                              className="flex items-center gap-2 px-5 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold text-sm shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+                              className="flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"
                             >
                               <FiCheck className="w-4 h-4" />
-                              Accept Answer
+                              <span className="hidden sm:inline">Accept Answer</span>
+                              <span className="sm:hidden">Accept</span>
                             </button>
                           )}
                           
                           {/* Show message if answer is already accepted */}
                           {answer.isAccepted && (
-                            <span className="flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-sm font-medium">
+                            <span className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-xs sm:text-sm font-medium">
                               <FiCheck className="w-4 h-4" />
-                              Accepted Answer
+                              <span className="hidden sm:inline">Accepted Answer</span>
+                              <span className="sm:hidden">Accepted</span>
                             </span>
                           )}
                           
@@ -1042,10 +1044,11 @@ const QuestionDetails = () => {
                            (String(answer.author._id) === String(user?.id || user?._id)) && (
                             <button
                               onClick={() => handleEditAnswer(answer._id)}
-                              className="flex items-center gap-1 px-3 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors text-sm border border-blue-300 dark:border-blue-800"
+                              className="flex items-center gap-1 px-3 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors text-xs sm:text-sm border border-blue-300 dark:border-blue-800 min-w-[60px] sm:min-w-0"
                             >
-                              <FiEdit3 className="w-4 h-4" />
-                              Edit
+                              <FiEdit3 className="w-4 h-4 flex-shrink-0" />
+                              <span className="hidden sm:inline">Edit</span>
+                              <span className="sm:hidden">Edit</span>
                             </button>
                           )}
                           
@@ -1055,10 +1058,11 @@ const QuestionDetails = () => {
                            (String(answer.author._id) === String(user?.id || user?._id)) && (
                             <button
                               onClick={() => handleDeleteAnswer(answer._id)}
-                              className="flex items-center gap-1 px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors text-sm border border-red-300 dark:border-red-800"
+                              className="flex items-center gap-1 px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors text-xs sm:text-sm border border-red-300 dark:border-red-800 min-w-[60px] sm:min-w-0"
                             >
-                              <FiTrash2 className="h-4 w-4" />
-                              Delete
+                              <FiTrash2 className="h-4 w-4 flex-shrink-0" />
+                              <span className="hidden sm:inline">Delete</span>
+                              <span className="sm:hidden">Delete</span>
                             </button>
                           )}
                           </div>
@@ -1109,7 +1113,7 @@ const QuestionDetails = () => {
                   <button
                     type="submit"
                     disabled={submittingAnswer || (!answerContent || (answerContent.replace(/<[^>]*>/g, '').trim().length === 0 && !answerContent.includes('<img')))}
-                    className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="w-full sm:w-auto px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
                   >
                     {submittingAnswer ? 'Posting...' : 'Post Answer'}
                   </button>
