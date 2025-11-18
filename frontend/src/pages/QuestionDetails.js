@@ -281,7 +281,7 @@ const QuestionDetails = () => {
     try {
       setVoting(prev => ({ ...prev, [targetId]: true }));
       
-      // Determine if we should remove the vote (user clicked same button again)
+      // Find current vote for this user
       let currentVote = null;
       if (targetType === 'questions') {
         // Compare user IDs properly (handle both string and ObjectId)
@@ -299,8 +299,8 @@ const QuestionDetails = () => {
         });
       }
 
-      // If clicking the same vote type, send 'remove', otherwise send the vote type
-      // The backend will handle toggling when same vote type is clicked
+      // If clicking the same vote type again, send 'remove' to toggle it off
+      // Otherwise, send the vote type (backend will handle switching from upvote to downvote or vice versa)
       const voteType = (currentVote && currentVote.voteType === type) ? 'remove' : type;
       
       const response = await axios.post(`/api/${targetType}/${targetId}/vote`, {
@@ -310,14 +310,20 @@ const QuestionDetails = () => {
       // Refetch the question to get updated vote data
       await fetchQuestion();
 
+      // Show appropriate message
       if (voteType === 'remove') {
         toast.success('Vote removed');
+      } else if (currentVote && currentVote.voteType !== type) {
+        // User switched from one vote type to another
+        toast.success(`Changed to ${type === 'upvote' ? 'upvote' : 'downvote'}`);
       } else {
+        // New vote added
         toast.success(`${type === 'upvote' ? 'Upvoted' : 'Downvoted'} successfully`);
       }
     } catch (error) {
       console.error('Error voting:', error);
-      toast.error('Failed to vote');
+      const errorMessage = error.response?.data?.message || 'Failed to vote';
+      toast.error(errorMessage);
     } finally {
       setVoting(prev => ({ ...prev, [targetId]: false }));
     }

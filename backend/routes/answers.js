@@ -211,30 +211,32 @@ router.post('/:id/vote', auth, [
       return res.status(404).json({ message: 'Answer not found' });
     }
 
-    const existingVote = answer.votes.voters.find(
+    // Find existing vote for this user (only one vote per user allowed)
+    const existingVoteIndex = answer.votes.voters.findIndex(
       vote => vote.user.toString() === req.userId
     );
+    const existingVote = existingVoteIndex !== -1 ? answer.votes.voters[existingVoteIndex] : null;
 
     let pointsChange = 0;
 
     if (voteType === 'remove') {
+      // Remove existing vote if it exists
       if (existingVote) {
         if (existingVote.voteType === 'upvote') {
           answer.votes.upvotes -= 1;
           pointsChange = -3; // Remove upvote points (3 points for answer upvote)
-        } else {
+        } else if (existingVote.voteType === 'downvote') {
           answer.votes.downvotes -= 1;
           pointsChange = 2; // Remove downvote penalty
         }
-        answer.votes.voters = answer.votes.voters.filter(
-          vote => vote.user.toString() !== req.userId
-        );
+        // Remove the vote from voters array
+        answer.votes.voters.splice(existingVoteIndex, 1);
       }
     } else {
       if (existingVote) {
-        // If clicking the same vote type again, remove the vote (toggle)
+        // User already has a vote - handle toggle or switch
         if (existingVote.voteType === voteType) {
-          // Remove the vote
+          // Same vote type clicked again - remove it (toggle off)
           if (voteType === 'upvote') {
             answer.votes.upvotes -= 1;
             pointsChange = -3; // Remove upvote points (3 points for answer upvote)
@@ -242,24 +244,33 @@ router.post('/:id/vote', auth, [
             answer.votes.downvotes -= 1;
             pointsChange = 2; // Remove downvote penalty
           }
-          answer.votes.voters = answer.votes.voters.filter(
-            vote => vote.user.toString() !== req.userId
-          );
+          // Remove the vote completely
+          answer.votes.voters.splice(existingVoteIndex, 1);
         } else {
-          // Switch vote type (upvote to downvote or vice versa)
+          // Different vote type - switch from one to the other
+          // First remove the old vote
           if (existingVote.voteType === 'upvote') {
             answer.votes.upvotes -= 1;
-            answer.votes.downvotes += 1;
-            pointsChange = -5; // Remove upvote points and add downvote penalty
+            pointsChange = -3; // Remove upvote points
           } else {
             answer.votes.downvotes -= 1;
-            answer.votes.upvotes += 1;
-            pointsChange = 5; // Remove downvote penalty and add upvote points
+            pointsChange = 2; // Remove downvote penalty
           }
+          
+          // Then add the new vote
+          if (voteType === 'upvote') {
+            answer.votes.upvotes += 1;
+            pointsChange += 3; // Add upvote points
+          } else {
+            answer.votes.downvotes += 1;
+            pointsChange -= 2; // Add downvote penalty
+          }
+          
+          // Update the existing vote type
           existingVote.voteType = voteType;
         }
       } else {
-        // Add new vote
+        // No existing vote - add new vote
         answer.votes.voters.push({
           user: req.userId,
           voteType
