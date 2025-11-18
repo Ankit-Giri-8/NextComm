@@ -470,7 +470,11 @@ const QuestionDetails = () => {
 
   // Handle save edited answer
   const handleSaveEditAnswer = async () => {
-    if (!editAnswerContent.trim()) {
+    // Check if content has text or images
+    const hasImage = editAnswerContent && editAnswerContent.includes('<img');
+    const hasText = editAnswerContent && editAnswerContent.replace(/<[^>]*>/g, '').trim().length > 0;
+    
+    if (!hasImage && !hasText) {
       toast.error('Answer cannot be empty');
       return;
     }
@@ -914,9 +918,10 @@ const QuestionDetails = () => {
                         // Edit mode
                         <div className="mb-4">
                           <ReactQuill
+                            key={`edit-answer-${answer._id}`}
                             theme="snow"
                             value={editAnswerContent}
-                            onChange={setEditAnswerContent}
+                            onChange={(value) => setEditAnswerContent(value || '')}
                             modules={editQuillModules}
                             formats={quillFormats}
                             placeholder="Edit your answer..."
@@ -933,7 +938,7 @@ const QuestionDetails = () => {
                             </button>
                             <button
                               onClick={handleSaveEditAnswer}
-                              disabled={savingAnswer || !editAnswerContent.trim()}
+                              disabled={savingAnswer || (!editAnswerContent || (editAnswerContent.replace(/<[^>]*>/g, '').trim().length === 0 && !editAnswerContent.includes('<img')))}
                               className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               {savingAnswer ? 'Saving...' : 'Save Changes'}

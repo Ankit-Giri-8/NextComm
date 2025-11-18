@@ -102,34 +102,46 @@ export const createQuillModules = (onFormulaClick, onCodeClick, onImageUpload) =
             // Show loading indicator
             quill.insertText(currentRange.index, 'Uploading image...', 'user');
             const loadingIndex = currentRange.index;
-            quill.setSelection(loadingIndex + 20, 0);
+            const loadingTextLength = 20;
+            quill.setSelection(loadingIndex + loadingTextLength, 0);
 
             try {
               // Upload image using custom handler or default
               if (onImageUpload) {
                 const imageUrl = await onImageUpload(file);
                 if (imageUrl) {
-                  // Get current content to preserve it
-                  const currentDelta = quill.getContents();
+                  // Remove loading text - search for it in the document
+                  const fullText = quill.getText();
+                  const loadingTextIndex = fullText.indexOf('Uploading image...');
                   
-                  // Get selection again after upload (might have changed)
-                  let insertRange = quill.getSelection(true);
-                  if (!insertRange) {
-                    // If no selection, insert at end
-                    const length = quill.getLength();
-                    insertRange = { index: length - 1, length: 0 };
+                  if (loadingTextIndex !== -1) {
+                    // Find the actual index in Quill's delta
+                    let actualIndex = 0;
+                    const contents = quill.getContents();
+                    let textPos = 0;
+                    
+                    for (let i = 0; i < contents.ops.length; i++) {
+                      const op = contents.ops[i];
+                      if (typeof op.insert === 'string') {
+                        if (textPos <= loadingTextIndex && loadingTextIndex < textPos + op.insert.length) {
+                          actualIndex = i;
+                          break;
+                        }
+                        textPos += op.insert.length;
+                      } else {
+                        actualIndex += 1;
+                      }
+                    }
+                    
+                    // Delete the loading text using the stored index
+                    quill.deleteText(loadingIndex, loadingTextLength);
                   }
                   
-                  // Find and remove loading text
-                  const loadingTextIndex = insertRange.index;
-                  const loadingTextLength = 20;
-                  
-                  // Check if loading text is still there
-                  const textAtPosition = quill.getText(loadingTextIndex, loadingTextLength);
-                  if (textAtPosition.includes('Uploading image')) {
-                    quill.deleteText(loadingTextIndex, loadingTextLength);
-                    // Adjust insert range if needed
-                    insertRange = { index: loadingTextIndex, length: 0 };
+                  // Get selection after removing loading text
+                  let insertRange = quill.getSelection(true);
+                  if (!insertRange) {
+                    // If no selection, insert at the position where loading text was
+                    insertRange = { index: loadingIndex, length: 0 };
                   }
                   
                   // Insert image at the correct position
@@ -147,17 +159,9 @@ export const createQuillModules = (onFormulaClick, onCodeClick, onImageUpload) =
                   const inputEvent = new Event('input', { bubbles: true });
                   quill.root.dispatchEvent(inputEvent);
                 } else {
-                  // Remove loading text on error
-                  let errorRange = quill.getSelection(true);
-                  if (!errorRange) {
-                    errorRange = { index: loadingIndex, length: 0 };
-                  }
-                  
-                  const textAtPosition = quill.getText(errorRange.index, 20);
-                  if (textAtPosition.includes('Uploading image')) {
-                    quill.deleteText(errorRange.index, 20);
-                    quill.setSelection(errorRange.index, 0);
-                  }
+                  // Remove loading text on error - use the stored index
+                  quill.deleteText(loadingIndex, loadingTextLength);
+                  quill.setSelection(loadingIndex, 0);
                   // Error message is already shown by onImageUpload handler
                 }
               } else {
@@ -165,17 +169,12 @@ export const createQuillModules = (onFormulaClick, onCodeClick, onImageUpload) =
                 console.warn('Image upload handler not provided, using base64 fallback');
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                  let insertRange = quill.getSelection(true) || { index: loadingIndex, length: 0 };
+                  // Remove loading text using stored index
+                  quill.deleteText(loadingIndex, loadingTextLength);
                   
-                  // Remove loading text
-                  const textAtPosition = quill.getText(insertRange.index, 20);
-                  if (textAtPosition.includes('Uploading image')) {
-                    quill.deleteText(insertRange.index, 20);
-                    insertRange = { index: insertRange.index, length: 0 };
-                  }
-                  
-                  quill.insertEmbed(insertRange.index, 'image', e.target.result, 'user');
-                  quill.setSelection(insertRange.index + 1, 0);
+                  // Insert image at the position where loading text was
+                  quill.insertEmbed(loadingIndex, 'image', e.target.result, 'user');
+                  quill.setSelection(loadingIndex + 1, 0);
                   
                   // Force ReactQuill to recognize the change
                   const event = new Event('text-change', { bubbles: true });
@@ -184,24 +183,18 @@ export const createQuillModules = (onFormulaClick, onCodeClick, onImageUpload) =
                   quill.root.dispatchEvent(inputEvent);
                 };
                 reader.onerror = () => {
-                  let errorRange = quill.getSelection(true) || { index: loadingIndex, length: 0 };
-                  const textAtPosition = quill.getText(errorRange.index, 20);
-                  if (textAtPosition.includes('Uploading image')) {
-                    quill.deleteText(errorRange.index, 20);
-                    quill.setSelection(errorRange.index, 0);
-                  }
+                  // Remove loading text on error
+                  quill.deleteText(loadingIndex, loadingTextLength);
+                  quill.setSelection(loadingIndex, 0);
                   alert('Failed to read image file. Please try again.');
                 };
                 reader.readAsDataURL(file);
               }
             } catch (error) {
               console.error('Error uploading image:', error);
-              let errorRange = quill.getSelection(true) || { index: loadingIndex, length: 0 };
-              const textAtPosition = quill.getText(errorRange.index, 20);
-              if (textAtPosition.includes('Uploading image')) {
-                quill.deleteText(errorRange.index, 20);
-                quill.setSelection(errorRange.index, 0);
-              }
+              // Remove loading text on error using stored index
+              quill.deleteText(loadingIndex, loadingTextLength);
+              quill.setSelection(loadingIndex, 0);
               const errorMessage = error.message || 'Failed to upload image. Please try again.';
               alert(errorMessage);
             }
