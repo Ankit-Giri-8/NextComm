@@ -174,7 +174,17 @@ router.get('/:id', async (req, res) => {
 // Create new question
 router.post('/', auth, [
   body('title').isLength({ min: 10, max: 200 }).withMessage('Title must be between 10 and 200 characters'),
-  body('description').isLength({ min: 20, max: 15000 }).withMessage('Description must be between 20 and 15000 characters'),
+  body('description')
+    .notEmpty().withMessage('Description is required')
+    .isLength({ min: 20, max: 15000 }).withMessage('Description must be between 20 and 15000 characters')
+    .custom((value) => {
+      // Remove HTML tags and check text content length
+      const textContent = value.replace(/<[^>]*>/g, '').trim();
+      if (textContent.length < 20) {
+        throw new Error('Description must contain at least 20 characters of text (excluding HTML tags)');
+      }
+      return true;
+    }),
   body('tags').isArray({ min: 1, max: 5 }).withMessage('Must provide 1-5 tags'),
   body('category').optional().isString(),
   body('difficulty').optional().isIn(['beginner', 'intermediate', 'advanced'])

@@ -84,8 +84,16 @@ const QuestionDetails = () => {
     setCodeModalOpen(true);
   };
 
+  // Helper function to check if HTML content is empty (used in multiple places)
+  const isHtmlEmpty = React.useCallback((html) => {
+    if (!html) return true;
+    // Remove HTML tags and check if there's actual content
+    const textContent = html.replace(/<[^>]*>/g, '').trim();
+    return textContent.length === 0;
+  }, []);
+
   // Handle image upload
-  const handleImageUpload = async (file) => {
+  const handleImageUpload = React.useCallback(async (file) => {
     if (!isAuthenticated) {
       toast.error('Please log in to upload images');
       return null;
@@ -104,27 +112,32 @@ const QuestionDetails = () => {
       if (response.data.success && response.data.secureUrl) {
         toast.success('Image uploaded successfully');
         return response.data.secureUrl;
+      } else if (response.data.success && response.data.url) {
+        // Fallback to url if secureUrl is not available
+        toast.success('Image uploaded successfully');
+        return response.data.url;
       } else {
         toast.error('Failed to upload image');
         return null;
       }
     } catch (error) {
       console.error('Error uploading image:', error);
-      toast.error(error.response?.data?.message || 'Failed to upload image');
+      const errorMessage = error.response?.data?.message || 'Failed to upload image';
+      toast.error(errorMessage);
       return null;
     }
-  };
+  }, [isAuthenticated]);
 
   // Enhanced ReactQuill configuration with LaTeX, Code, and Image upload buttons
   const quillModules = React.useMemo(() => 
     createQuillModules(handleFormulaClick, handleCodeClick, handleImageUpload), 
-    [handleImageUpload]
+    [handleFormulaClick, handleCodeClick, handleImageUpload]
   );
 
   // Edit mode ReactQuill configuration
   const editQuillModules = React.useMemo(() => 
     createQuillModules(handleEditFormulaClick, handleEditCodeClick, handleImageUpload), 
-    [handleImageUpload]
+    [handleEditFormulaClick, handleEditCodeClick, handleImageUpload]
   );
 
   // Handle formula insertion
@@ -368,7 +381,7 @@ const QuestionDetails = () => {
       return;
     }
 
-    if (!answerContent.trim()) {
+    if (isHtmlEmpty(answerContent)) {
       toast.error('Please enter an answer');
       return;
     }
@@ -1124,7 +1137,7 @@ const QuestionDetails = () => {
                 <div className="flex justify-end gap-3">
                   <button
                     type="submit"
-                    disabled={submittingAnswer || !answerContent.trim()}
+                    disabled={submittingAnswer || isHtmlEmpty(answerContent)}
                     className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {submittingAnswer ? 'Posting...' : 'Post Answer'}

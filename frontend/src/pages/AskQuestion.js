@@ -35,7 +35,7 @@ const AskQuestion = () => {
   const { isAuthenticated } = useAuth();
 
   // Handle image upload
-  const handleImageUpload = async (file) => {
+  const handleImageUpload = React.useCallback(async (file) => {
     if (!isAuthenticated) {
       toast.error('Please log in to upload images');
       return null;
@@ -54,16 +54,21 @@ const AskQuestion = () => {
       if (response.data.success && response.data.secureUrl) {
         toast.success('Image uploaded successfully');
         return response.data.secureUrl;
+      } else if (response.data.success && response.data.url) {
+        // Fallback to url if secureUrl is not available
+        toast.success('Image uploaded successfully');
+        return response.data.url;
       } else {
         toast.error('Failed to upload image');
         return null;
       }
     } catch (error) {
       console.error('Error uploading image:', error);
-      toast.error(error.response?.data?.message || 'Failed to upload image');
+      const errorMessage = error.response?.data?.message || 'Failed to upload image';
+      toast.error(errorMessage);
       return null;
     }
-  };
+  }, [isAuthenticated]);
 
   // Handle formula button click
   const handleFormulaClick = (quill, range) => {
@@ -255,6 +260,22 @@ const AskQuestion = () => {
     }
   };
 
+  // Helper function to check if HTML content is empty
+  const isHtmlEmpty = (html) => {
+    if (!html) return true;
+    // Remove HTML tags and check if there's actual content
+    const textContent = html.replace(/<[^>]*>/g, '').trim();
+    return textContent.length === 0;
+  };
+
+  // Helper function to get text length from HTML
+  const getHtmlTextLength = (html) => {
+    if (!html) return 0;
+    // Remove HTML tags and get text length
+    const textContent = html.replace(/<[^>]*>/g, '').trim();
+    return textContent.length;
+  };
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -266,9 +287,11 @@ const AskQuestion = () => {
       newErrors.title = 'Title must be less than 200 characters';
     }
 
-    if (!formData.description.trim()) {
+    // Check description - handle HTML content from ReactQuill
+    const descriptionTextLength = getHtmlTextLength(formData.description);
+    if (isHtmlEmpty(formData.description)) {
       newErrors.description = 'Description is required';
-    } else if (formData.description.length < 20) {
+    } else if (descriptionTextLength < 20) {
       newErrors.description = 'Description must be at least 20 characters';
     } else if (formData.description.length > 15000) {
       newErrors.description = 'Description must be less than 15000 characters';
@@ -297,9 +320,16 @@ const AskQuestion = () => {
       
       const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
       
+      // Ensure description is not empty HTML
+      const descriptionTextLength = getHtmlTextLength(formData.description);
+      if (isHtmlEmpty(formData.description) || descriptionTextLength < 20) {
+        toast.error('Please provide a valid description (at least 20 characters)');
+        return;
+      }
+
       const questionData = {
         title: formData.title.trim(),
-        description: formData.description,
+        description: formData.description, // Keep HTML content as-is (ReactQuill output)
         tags: tagsArray,
         category: formData.category,
         difficulty: formData.difficulty
