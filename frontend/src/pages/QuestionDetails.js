@@ -14,7 +14,7 @@ import {
   FiArrowLeft,
   FiZap
 } from 'react-icons/fi';
-import axios from 'axios';
+import axios from '../utils/api';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { preserveFormulasOnPaste, renderFormulas } from '../utils/formulaHandler';
@@ -84,16 +84,47 @@ const QuestionDetails = () => {
     setCodeModalOpen(true);
   };
 
-  // Enhanced ReactQuill configuration with LaTeX and Code buttons
+  // Handle image upload
+  const handleImageUpload = async (file) => {
+    if (!isAuthenticated) {
+      toast.error('Please log in to upload images');
+      return null;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await axios.post('/api/upload/image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      if (response.data.success && response.data.secureUrl) {
+        toast.success('Image uploaded successfully');
+        return response.data.secureUrl;
+      } else {
+        toast.error('Failed to upload image');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error(error.response?.data?.message || 'Failed to upload image');
+      return null;
+    }
+  };
+
+  // Enhanced ReactQuill configuration with LaTeX, Code, and Image upload buttons
   const quillModules = React.useMemo(() => 
-    createQuillModules(handleFormulaClick, handleCodeClick), 
-    []
+    createQuillModules(handleFormulaClick, handleCodeClick, handleImageUpload), 
+    [handleImageUpload]
   );
 
   // Edit mode ReactQuill configuration
   const editQuillModules = React.useMemo(() => 
-    createQuillModules(handleEditFormulaClick, handleEditCodeClick), 
-    []
+    createQuillModules(handleEditFormulaClick, handleEditCodeClick, handleImageUpload), 
+    [handleImageUpload]
   );
 
   // Handle formula insertion

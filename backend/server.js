@@ -83,6 +83,7 @@ app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/bookmarks', require('./routes/bookmarks'));
 app.use('/api/unanswered', require('./routes/unanswered'));
+app.use('/api/upload', require('./routes/upload'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

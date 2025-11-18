@@ -20,7 +20,7 @@ icons['code'] = `
   </svg>
 `;
 
-export const createQuillModules = (onFormulaClick, onCodeClick) => {
+export const createQuillModules = (onFormulaClick, onCodeClick, onImageUpload) => {
   return {
     toolbar: {
       container: [
@@ -59,6 +59,66 @@ export const createQuillModules = (onFormulaClick, onCodeClick) => {
           if (onCodeClick) {
             onCodeClick(this.quill, range);
           }
+        },
+        'image': function() {
+          // Create file input
+          const input = document.createElement('input');
+          input.setAttribute('type', 'file');
+          input.setAttribute('accept', 'image/*');
+          input.click();
+
+          input.onchange = async () => {
+            const file = input.files[0];
+            if (!file) return;
+
+            // Check file size (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+              alert('Image size must be less than 5MB');
+              return;
+            }
+
+            // Check file type
+            if (!file.type.startsWith('image/')) {
+              alert('Please select an image file');
+              return;
+            }
+
+            const range = this.quill.getSelection(true);
+            if (!range) return;
+
+            // Show loading indicator
+            this.quill.insertText(range.index, 'Uploading image...', 'user');
+            this.quill.setSelection(range.index + 20);
+
+            try {
+              // Upload image using custom handler or default
+              if (onImageUpload) {
+                const imageUrl = await onImageUpload(file);
+                if (imageUrl) {
+                  // Remove loading text and insert image
+                  this.quill.deleteText(range.index, 20);
+                  this.quill.insertEmbed(range.index, 'image', imageUrl);
+                  this.quill.setSelection(range.index + 1);
+                } else {
+                  // Remove loading text on error
+                  this.quill.deleteText(range.index, 20);
+                }
+              } else {
+                // Fallback: use default image handler (base64)
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  this.quill.deleteText(range.index, 20);
+                  this.quill.insertEmbed(range.index, 'image', e.target.result);
+                  this.quill.setSelection(range.index + 1);
+                };
+                reader.readAsDataURL(file);
+              }
+            } catch (error) {
+              console.error('Error uploading image:', error);
+              this.quill.deleteText(range.index, 20);
+              alert('Failed to upload image. Please try again.');
+            }
+          };
         }
       }
     },
