@@ -46,6 +46,20 @@ const questionSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  viewTrack: [{
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    viewCount: {
+      type: Number,
+      default: 0
+    },
+    lastViewed: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   answers: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Answer'

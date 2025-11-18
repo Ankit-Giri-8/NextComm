@@ -1,4 +1,5 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const { body, validationResult, query } = require('express-validator');
 const Question = require('../models/Question');
 const Answer = require('../models/Answer');
@@ -92,6 +93,19 @@ router.get('/', [
 // Get single question with answers
 router.get('/:id', async (req, res) => {
   try {
+    // Try to get userId from token if present (optional auth)
+    let userId = null;
+    try {
+      const token = req.header('Authorization')?.replace('Bearer ', '');
+      if (token && process.env.JWT_SECRET) {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        userId = decoded.userId;
+      }
+    } catch (tokenError) {
+      // Token invalid or not present - continue without userId
+      userId = null;
+    }
+
     const question = await Question.findById(req.params.id)
       .populate('author', 'username avatar points badges')
       .populate({
@@ -106,9 +120,41 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Question not found' });
     }
 
-    // Increment view count (don't fail if save fails)
+    // Track views per user (max 2 views per user)
     try {
-      question.views += 1;
+      
+      if (userId) {
+        // Find existing view track for this user
+        const userViewIndex = question.viewTrack?.findIndex(
+          vt => vt.user.toString() === userId.toString()
+        ) ?? -1;
+        
+        if (userViewIndex !== -1) {
+          // User has viewed before - check if they can view again (max 2 views)
+          const userView = question.viewTrack[userViewIndex];
+          if (userView.viewCount < 2) {
+            userView.viewCount += 1;
+            userView.lastViewed = new Date();
+            question.views += 1; // Increment total views only if under limit
+          }
+          // If already at 2 views, don't increment
+        } else {
+          // First view from this user
+          if (!question.viewTrack) {
+            question.viewTrack = [];
+          }
+          question.viewTrack.push({
+            user: userId,
+            viewCount: 1,
+            lastViewed: new Date()
+          });
+          question.views += 1;
+        }
+      } else {
+        // Anonymous user - just increment (no tracking)
+        question.views += 1;
+      }
+      
       await question.save();
     } catch (saveError) {
       console.error('Error saving view count:', saveError);
@@ -315,9 +361,27 @@ router.post('/:id/vote', auth, [
       return res.status(404).json({ message: 'Question not found' });
     }
 
+    // Initialize votes structure if it doesn't exist (for old questions)
+    if (!question.votes) {
+      question.votes = {
+        upvotes: 0,
+        downvotes: 0,
+        voters: []
+      };
+    }
+    if (!question.votes.voters) {
+      question.votes.voters = [];
+    }
+    if (question.votes.upvotes === undefined) {
+      question.votes.upvotes = 0;
+    }
+    if (question.votes.downvotes === undefined) {
+      question.votes.downvotes = 0;
+    }
+
     // Find existing vote for this user (only one vote per user allowed)
     const existingVoteIndex = question.votes.voters.findIndex(
-      vote => vote.user.toString() === req.userId
+      vote => vote.user.toString() === req.userId.toString()
     );
     const existingVote = existingVoteIndex !== -1 ? question.votes.voters[existingVoteIndex] : null;
 
@@ -443,11 +507,14 @@ router.post('/:id/vote', auth, [
       }
     }
 
+    // Reload question to ensure we have the latest data
+    const updatedQuestion = await Question.findById(req.params.id);
+    
     // Return updated vote counts and voters array
     res.json({ 
-      upvotes: question.votes.upvotes, 
-      downvotes: question.votes.downvotes,
-      voters: question.votes.voters 
+      upvotes: updatedQuestion.votes.upvotes || 0, 
+      downvotes: updatedQuestion.votes.downvotes || 0,
+      voters: updatedQuestion.votes.voters || []
     });
   } catch (error) {
     console.error('❌ Error voting on question:', error);

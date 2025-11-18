@@ -211,9 +211,27 @@ router.post('/:id/vote', auth, [
       return res.status(404).json({ message: 'Answer not found' });
     }
 
+    // Initialize votes structure if it doesn't exist (for old answers)
+    if (!answer.votes) {
+      answer.votes = {
+        upvotes: 0,
+        downvotes: 0,
+        voters: []
+      };
+    }
+    if (!answer.votes.voters) {
+      answer.votes.voters = [];
+    }
+    if (answer.votes.upvotes === undefined) {
+      answer.votes.upvotes = 0;
+    }
+    if (answer.votes.downvotes === undefined) {
+      answer.votes.downvotes = 0;
+    }
+
     // Find existing vote for this user (only one vote per user allowed)
     const existingVoteIndex = answer.votes.voters.findIndex(
-      vote => vote.user.toString() === req.userId
+      vote => vote.user.toString() === req.userId.toString()
     );
     const existingVote = existingVoteIndex !== -1 ? answer.votes.voters[existingVoteIndex] : null;
 
@@ -340,11 +358,14 @@ router.post('/:id/vote', auth, [
       }
     }
 
+    // Reload answer to ensure we have the latest data
+    const updatedAnswer = await Answer.findById(req.params.id);
+    
     // Return updated vote counts and voters array
     res.json({ 
-      upvotes: answer.votes.upvotes, 
-      downvotes: answer.votes.downvotes,
-      voters: answer.votes.voters 
+      upvotes: updatedAnswer.votes.upvotes || 0, 
+      downvotes: updatedAnswer.votes.downvotes || 0,
+      voters: updatedAnswer.votes.voters || []
     });
   } catch (error) {
     console.error('❌ Error voting on answer:', error);
